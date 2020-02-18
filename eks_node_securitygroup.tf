@@ -17,8 +17,9 @@ resource "aws_security_group" "eks-node" {
   }
 }
 
-########################################################################################
-# Setup worker node security group
+##########################################################################
+#### Setup worker node security group
+##########################################################################
 
 resource "aws_security_group_rule" "node-ingress-self" {
   description              = "Allow node to communicate with each other"
@@ -40,15 +41,15 @@ resource "aws_security_group_rule" "node-ingress-cluster" {
   type                     = "ingress"
 }
 # allow worker nodes to access EKS master
-#resource "aws_security_group_rule" "cluster-ingress-node-https" {
-#  description              = "Allow pods to communicate with the cluster API Server"
-#  from_port                = 443
-#  protocol                 = "tcp"
-#  security_group_id        = aws_security_group.eks_cluster_security_group.id
-#  source_security_group_id = aws_security_group.eks-node.id
-#  to_port                  = 443
-#  type                     = "ingress"
-#}
+resource "aws_security_group_rule" "cluster-ingress-node-https" {
+  description              = "Allow pods to communicate with the cluster API Server"
+  from_port                = 443
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.eks-node.id
+  source_security_group_id = aws_security_group.eks_cluster_security_group.id
+  to_port                  = 443
+  type                     = "ingress"
+}
 
 resource "aws_security_group_rule" "eks-node-ingress-master" {
   description              = "Allow cluster control to receive communication from the worker Kubelets"

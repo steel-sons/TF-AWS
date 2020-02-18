@@ -7,10 +7,10 @@ locals {
   tf-eks-node-userdata = <<USERDATA
 #!/bin/bash
 set -o xtrace
-/etc/eks/bootstrap.sh --apiserver-endpoint '${aws_eks_cluster.eks_cluster.endpoint}' --b64-cluster-ca '${aws_eks_cluster.eks_cluster.certificate_authority.0.data}' 'example'
+/etc/eks/bootstrap.sh --apiserver-endpoint '${aws_eks_cluster.eks_cluster.endpoint}' --b64-cluster-ca '${aws_eks_cluster.eks_cluster.certificate_authority.0.data}' '${var.cluster_name}'
 USERDATA
 }
-
+######################################
 #### AutoScaling launch configuration
 ######################################
 #### Public subnet
@@ -30,6 +30,7 @@ resource "aws_launch_configuration" "tf_eks" {
 
 resource "aws_autoscaling_group" "tf_eks_asg" {
   count                     = length(var.availability_zones)
+  name                      = "asg-out${count.index + 1}"
   default_cooldown          = 1
   wait_for_capacity_timeout = 0
   launch_configuration      = aws_launch_configuration.tf_eks.id
@@ -43,8 +44,13 @@ resource "aws_autoscaling_group" "tf_eks_asg" {
     value               = "owned"
     propagate_at_launch = true
   }
+  tag {
+    key                 = "Name"
+    value               = "eks-public-asg"
+    propagate_at_launch = true
+  }
 }
-
+###############################
 #### Private subnet
 resource "aws_launch_configuration" "eks-lc-private" {
   associate_public_ip_address = false
@@ -58,6 +64,7 @@ resource "aws_launch_configuration" "eks-lc-private" {
 
 resource "aws_autoscaling_group" "eks-asg-private" {
   count                     = length(var.availability_zones)
+  name                      = "asg-in${count.index + 1}"
   default_cooldown          = 1
   wait_for_capacity_timeout = 0
   launch_configuration      = aws_launch_configuration.eks-lc-private.id
@@ -69,6 +76,11 @@ resource "aws_autoscaling_group" "eks-asg-private" {
   tag {
     key                 = "kubernetes.io/cluster/${var.cluster_name}"
     value               = "owned"
+    propagate_at_launch = true
+    }
+  tag {
+    key                 = "Name"
+    value               = "eks-private-asg"
     propagate_at_launch = true
   }
 }
