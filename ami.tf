@@ -5,7 +5,7 @@ data "aws_ami" "amazon-eks-linux-2" {
 
   filter {
     name   = "name"
-    values = ["amazon-eks-node-*"]
+    values = ["amazon-eks-node-1.14*"]
   }
 
   filter {
@@ -13,3 +13,8 @@ data "aws_ami" "amazon-eks-linux-2" {
     values = ["hvm"]
   }
 }
+
+# amazon-eks-node-1.11-v20191213 (ami-0ab75073588fdfe5d)
+# if deployed using Autoscaling group rules
+# with aws_eks_node_group diffirent image is deployed
+# amazon-eks-node-1.14-v20190927 (ami-0392bafc801b7520f)

@@ -7,7 +7,7 @@ resource "aws_vpc" "bastion" {
   enable_dns_hostnames = "true"
 
   tags = {
-    "Name"                                      = "terraform-eks-node"
+    "Name"                                      = "${var.cluster_name}-vpc"
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
   }
 }
@@ -18,16 +18,15 @@ resource "aws_vpc" "bastion" {
 resource "aws_subnet" "subnet-public" {
   count = length(var.availability_zones) // count the number of availability_zones variable
 
-  vpc_id     = aws_vpc.bastion.id
-  cidr_block = cidrsubnet(aws_vpc.bastion.cidr_block, 8, length(var.availability_zones) + count.index + 1)
-  # cidr_block = "10.0.1.0/24"
-  # availability_zone = data.aws_availability_zones.available.names[count.index] //adds numbered values of AZ
+  vpc_id                  = aws_vpc.bastion.id
+  cidr_block              = cidrsubnet(aws_vpc.bastion.cidr_block, 8, length(var.availability_zones) + count.index + 1)
   availability_zone       = var.availability_zones[count.index]
   map_public_ip_on_launch = "true" //this makes it a public subnet
 
   tags = {
     "Name"                                      = "Public-${count.index + 1}"
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared",
+    "kubernetes.io/role/elb"                    = 1
   }
 }
 
@@ -42,16 +41,15 @@ resource "aws_route_table_association" "public-RT-AS" {
 resource "aws_subnet" "subnet-private" {
   count = length(var.availability_zones)
 
-  vpc_id     = aws_vpc.bastion.id
-  cidr_block = cidrsubnet(aws_vpc.bastion.cidr_block, 8, length(var.availability_zones) + count.index + 4)
-  # cidr_block        = "10.0.4.0/24"
-  # availability_zone = data.aws_availability_zones.available.names[count.index]
+  vpc_id                  = aws_vpc.bastion.id
+  cidr_block              = cidrsubnet(aws_vpc.bastion.cidr_block, 8, length(var.availability_zones) + count.index + 4)
   availability_zone       = var.availability_zones[count.index]
   map_public_ip_on_launch = "false" //this make it a private subnet
 
   tags = {
     "Name"                                      = "Private-${count.index + 1}"
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared",
+    "kubernetes.io/role/internal-elb"           = 1
   }
 }
 
@@ -75,6 +73,7 @@ resource "aws_internet_gateway" "gw" {
   tags = {
     Name = "main-IGW"
   }
+  depends_on = [aws_vpc.bastion]
 }
 
 #### Route Table for a Public Subnet
@@ -91,4 +90,5 @@ resource "aws_route_table" "public-RT" {
   tags = {
     Name = "Public RouteTable"
   }
+  depends_on = [aws_subnet.subnet-public]
 }
