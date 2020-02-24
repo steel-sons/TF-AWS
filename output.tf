@@ -8,9 +8,6 @@ output "eks_kubeconfig" {
     }
   )
 }
- 
-  depends_on = [aws_eks_cluster.eks_cluster]
-}
 
 output "config_map_aws_auth" {
   value = templatefile(
