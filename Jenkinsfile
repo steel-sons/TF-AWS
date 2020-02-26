@@ -20,7 +20,7 @@ pipeline {
  	      }
  	      stage('Provision infrastructure') {
  		        steps {
- 			            dir('dev')
+ 			            // dir('dev')
  			              {
  				               sh 'terraform init'
  				               sh 'terraform plan -out=plan'
