@@ -1,12 +1,7 @@
 pipeline {
     agent any
 
-    options {
-        ansiColor('xterm')
-    }
-
     parameters {
-
         password(name: 'AWS_ACCESS_KEY_ID', defaultValue: 'SECRET', description: 'ACCESS KEY for AWS account')
         password(name: 'AWS_SECRET_ACCESS_KEY', defaultValue: 'SECRET', description: 'SECRET ACCESS KEY for AWS account')
     }
@@ -17,7 +12,6 @@ pipeline {
     }
 
     stages {
-
         stage('Creating infrastructure.') {
             steps {
                 script {
