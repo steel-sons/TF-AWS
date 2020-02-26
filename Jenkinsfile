@@ -6,24 +6,33 @@ pipeline {
         password(name: 'AWS_SECRET_ACCESS_KEY', defaultValue: 'SECRET', description: 'SECRET ACCESS KEY for AWS account')
     }
 
-    environment {
-        BUCKET_NAME           = "${STACK_NAME}-s3-tfstate"
-        TF_STATE_FILE         = "${STACK_NAME}-terraform.tfstate"
-    }
-
     stages {
-        stage('Creating infrastructure.') {
-            steps {
-                script {
-                    sh """
-                        terraform init
-                        sleep 60
-                        terraform apply -auto-approve
-                    """
-                }
-            }
-        }
-    }
+	stage(‘Set Terraform path’) {
+ steps {
+ script {
+ def tfHome = tool name: ‘Terraform’
+ env.PATH = “${tfHome}:${env.PATH}”
+ }
+ sh ‘terraform — version’
+ 
+ 
+ }
+ }
+ 
+ stage(‘Provision infrastructure’) {
+ 
+ steps {
+ dir(‘dev’)
+ {
+ sh ‘terraform init’
+ sh ‘terraform plan -out=plan’
+ // sh ‘terraform destroy -auto-approve’
+ sh ‘terraform apply plan’
+ }
+ 
+ 
+ }
+ }
     post {
         always {
             cleanWs()
