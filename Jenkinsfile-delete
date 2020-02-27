@@ -23,7 +23,7 @@ pipeline {
 
  				               sh 'terraform init'
                        sh 'terraform plan -out=plan'
- 				               sh 'terraform destroy plan -auto-approve'
+ 				               sh 'terraform destroy -auto-approve'
 
  		        }
  	     }
