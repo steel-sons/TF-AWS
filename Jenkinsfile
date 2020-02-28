@@ -7,26 +7,28 @@ pipeline {
     }
 
     stages {
-	      stage('Set Terraform path') {
+	      stage('Set Terraform path and its version') {
  		        steps {
  			          script {
  				             def tfHome = tool name: 'Terraform'
  				             env.PATH = "${tfHome}:${env.PATH}"
  			          }
  			            sh 'terraform version'
-
-
  	          }
  	      }
+        stage('Checkout') {
+            steps {
+                   checkout scm
+                   sh 'echo $AWS_ACCESS_KEY_ID'
+      }
+    }
  	      stage('Provision infrastructure') {
  		        steps {
- 			            // dir('dev')
-
  				               sh 'terraform init'
  				               sh 'terraform plan -out=plan'
  				               // sh 'terraform destroy -auto-approve'
- 				               sh 'terraform apply plan'
- 			              
+ 				               // sh 'terraform apply plan'
+
  		        }
  	     }
     }
