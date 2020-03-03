@@ -1,4 +1,4 @@
-#### Oficial latest AMI version for AWS EKS
+#### Official latest AMI version for AWS EKS
 data "aws_ami" "amazon-eks-linux-2" {
   most_recent = true
   owners      = ["602401143452"] # Amazon repository
