@@ -16,13 +16,13 @@ pipeline {
  			            sh 'terraform version'
  	          }
  	      }
-        stage('Checkout') {
-            steps {
-                   checkout scm
-                   sh 'echo $AWS_ACCESS_KEY_ID'
-                   sh 'echo $AWS_SECRET_ACCESS_KEY'
-      }
-    }
+              stage('Checkout') {
+            		steps {
+                   		checkout scm
+                   		sh 'echo $AWS_ACCESS_KEY_ID'
+                   		sh 'echo $AWS_SECRET_ACCESS_KEY'
+                  }
+              }
  	      stage('Provision infrastructure') {
  		        steps {
  				               sh 'terraform init'
@@ -30,8 +30,8 @@ pipeline {
  				               // sh 'terraform destroy -auto-approve'
  				               // sh 'terraform apply plan'
 
- 		        }
- 	     }
+ 		  }
+ 	      }
     }
        post {
         always {
