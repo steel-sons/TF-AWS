@@ -40,14 +40,14 @@ resource "aws_dynamodb_table" "terraform_locks" {
   }
 }
 
-#terraform {
-#  backend "s3" {
-#
-#    bucket         = "EKS-cluster-s3-state"
-#    key            = "global/s3/terraform.tfstate"
-#    region         = "us-east-1"
-#
-#    dynamodb_table = "EKS-cluster-DynamoDB-tfstate"
-#    encrypt        = true
-#  }
-#}
+terraform {
+  backend "s3" {
+
+    bucket         = "eks-cluster-s3-state"
+    key            = "global/s3/terraform.tfstate"
+    region         = "us-east-1"
+
+    dynamodb_table = "eks-cluster-DynamoDB-tfstate"
+    encrypt        = true
+  }
+}
