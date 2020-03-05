@@ -30,7 +30,3 @@ variable "cluster_name" {
   default     = "EKS-cluster"
   description = "EKS cluster name"
 }
-
-variable "bucket_name" {
-
-}
