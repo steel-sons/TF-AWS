@@ -5,19 +5,21 @@ pipeline {
         password(name: 'AWS_ACCESS_KEY_ID', defaultValue: 'SECRET', description: 'ACCESS KEY for AWS account')
         password(name: 'AWS_SECRET_ACCESS_KEY', defaultValue: 'SECRET', description: 'SECRET ACCESS KEY for AWS account')
     }
-
+    environment {
+       // moving to environment init
+       // tfHome = tool name: 'terraform-0.12.16'
+       tfHome = tool name: 'Terraform'
+       PATH = "${tfHome}:${env.PATH}"
+       // TERRAFORM_CONFIGURATION_GIT_PATH = '../jenkins-pipelines/cluster-configuration-terraform'
+       }
     stages {
-	      stage('Set Terraform path and its version') {
+	      stage('Check Terraform initialization') {
  		        steps {
- 			          script {
- 				             def tfHome = tool name: 'Terraform'
- 				             env.PATH = "${tfHome}:${env.PATH}"
- 			          }
  			            sh 'terraform version'
  	          }
  	      }
-              stage('Checkout') {
-            		steps {
+        stage('Checkout SCM tool') {
+            steps {
                    		checkout scm
                    		sh 'echo $AWS_ACCESS_KEY_ID'
                    		sh 'echo $AWS_SECRET_ACCESS_KEY'
@@ -28,12 +30,12 @@ pipeline {
  				               sh 'terraform init'
  				               sh 'terraform plan -out=plan'
  				               // sh 'terraform destroy -auto-approve'
- 				               // sh 'terraform apply plan'
+ 				               sh 'terraform apply plan'
 
- 		  }
- 	      }
+                       }
+ 	     }
     }
-       post {
+    post {
         always {
             cleanWs()
         }
