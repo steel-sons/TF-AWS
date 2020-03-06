@@ -1,6 +1,10 @@
 pipeline {
     agent any
+    
+    options {
+	ansiColor('xterm')
 
+    }
     parameters {
         password(name: 'AWS_ACCESS_KEY_ID', defaultValue: 'SECRET', description: 'ACCESS KEY for AWS account')
         password(name: 'AWS_SECRET_ACCESS_KEY', defaultValue: 'SECRET', description: 'SECRET ACCESS KEY for AWS account')
@@ -30,7 +34,7 @@ pipeline {
  				               sh 'terraform init'
  				               sh 'terraform plan -out=plan'
  				               // sh 'terraform destroy -auto-approve'
- 				               sh 'terraform apply plan'
+ 				               sh 'terraform apply "plan" -auto-approve'
 
                        }
  	     }
