@@ -1,4 +1,6 @@
-#### Setup for IAM role for EKS cluster
+#######################################
+#### Setup IAM role for EKS cluster
+######################################
 resource "aws_iam_role" "eks_role" {
   name = "EKS-cluster-role"
   assume_role_policy = jsonencode(
@@ -30,8 +32,9 @@ resource "aws_iam_role_policy_attachment" "eks_AmazonEKSServicePolicy" {
   role       = aws_iam_role.eks_role.name
 }
 
-#########################################################################
+#######################################
 #### IAM role for EKS Worker nodes
+#######################################
 resource "aws_iam_role" "eks-node" {
   name = "eks-node-group"
 
@@ -69,7 +72,7 @@ resource "aws_iam_role_policy_attachment" "example-AmazonEC2ContainerRegistryRea
   role       = aws_iam_role.eks-node.name
 }
 
-resource "aws_iam_instance_profile" "eks-node" {
-  name = "IAM-profile-for-EKS-node"
+resource "aws_iam_instance_profile" "node" {
+  name = "terraform-EKS-node"
   role = aws_iam_role.eks-node.name
 }
