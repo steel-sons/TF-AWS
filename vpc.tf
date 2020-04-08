@@ -1,7 +1,7 @@
-# Setup AWS VPC
+#### Setup AWS VPC
 
 resource "aws_vpc" "bastion" {
-  cidr_block           = "10.0.0.0/16"
+  cidr_block           = var.vpc_cidr
   instance_tenancy     = "default"
   enable_dns_support   = "true"
   enable_dns_hostnames = "true"
@@ -12,19 +12,19 @@ resource "aws_vpc" "bastion" {
   }
 }
 
-#### Create VPC subnets #################
+#### Create VPC subnets based on VPC CIDR block #################
 
 #### Public Subnet
 resource "aws_subnet" "subnet-public" {
-  count = length(var.availability_zones) // count the number of availability_zones variable
+  count = length(var.availability_zones)
 
   vpc_id                  = aws_vpc.bastion.id
-  cidr_block              = cidrsubnet(aws_vpc.bastion.cidr_block, 8, length(var.availability_zones) + count.index + 1)
+  cidr_block              = cidrsubnet(aws_vpc.bastion.cidr_block, 8, length(var.availability_zones) + count.index)
   availability_zone       = var.availability_zones[count.index]
   map_public_ip_on_launch = "true" //this makes it a public subnet
 
   tags = {
-    "Name"                                      = "Public-${count.index + 1}"
+    "Name"                                      = "Public-subnet-${count.index + 1}"
     "kubernetes.io/cluster/${var.cluster_name}" = "shared",
     "kubernetes.io/role/elb"                    = 1
   }
@@ -42,12 +42,12 @@ resource "aws_subnet" "subnet-private" {
   count = length(var.availability_zones)
 
   vpc_id                  = aws_vpc.bastion.id
-  cidr_block              = cidrsubnet(aws_vpc.bastion.cidr_block, 8, length(var.availability_zones) + count.index + 4)
+  cidr_block              = cidrsubnet(aws_vpc.bastion.cidr_block, 8, length(var.availability_zones) + count.index + 2)
   availability_zone       = var.availability_zones[count.index]
   map_public_ip_on_launch = "false" //this make it a private subnet
 
   tags = {
-    "Name"                                      = "Private-${count.index + 1}"
+    "Name"                                      = "Private-subnet-${count.index + 1}"
     "kubernetes.io/cluster/${var.cluster_name}" = "shared",
     "kubernetes.io/role/internal-elb"           = 1
   }
